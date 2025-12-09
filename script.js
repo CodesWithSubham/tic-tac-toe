@@ -8,9 +8,14 @@ const PVP_KEY = "TTT_PVP_HISTORY";
 let board, currentPlayer, gameOver, mode;
 
 const wins = [
-  [0,1,2],[3,4,5],[6,7,8],
-  [0,3,6],[1,4,7],[2,5,8],
-  [0,4,8],[2,4,6]
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
 ];
 
 const cellSize = 100;
@@ -23,6 +28,7 @@ function startGame(m) {
   currentPlayer = Math.random() > 0.5 ? "X" : "O";
 
   boardSvg.innerHTML = "";
+  document.querySelector(".board-wrapper").classList.remove("win");
   document.querySelector(".board-wrapper").classList.remove("hidden");
   document.getElementById("modeSelect").classList.add("hidden");
   document.getElementById("restart").classList.remove("hidden");
@@ -34,7 +40,7 @@ function startGame(m) {
   loadHistory();
 
   if (mode === "bot" && currentPlayer === "O") {
-    setTimeout(botMove, 400);
+    setTimeout(botMove, 600);
   }
 }
 
@@ -104,7 +110,7 @@ function drawX(cx, cy) {
   const l1 = document.createElementNS(NS, "line");
   const l2 = document.createElementNS(NS, "line");
 
-  [l1, l2].forEach(l => {
+  [l1, l2].forEach((l) => {
     l.setAttribute("x1", cx - 25);
     l.setAttribute("y1", cy - 25);
     l.setAttribute("x2", cx + 25);
@@ -128,33 +134,31 @@ function drawO(cx, cy) {
 }
 
 function botMove() {
-  const empty = board.map((v,i)=>v===""?i:null).filter(v=>v!==null);
-  move(empty[Math.floor(Math.random()*empty.length)]);
+  const empty = board.map((v, i) => (v === "" ? i : null)).filter((v) => v !== null);
+  move(empty[Math.floor(Math.random() * empty.length)]);
 }
 
 function checkWin() {
-  for (const [a,b,c] of wins) {
+  for (const [a, b, c] of wins) {
     if (board[a] && board[a] === board[b] && board[a] === board[c]) {
       drawWinLine(a, c);
-      endGame(`${board[a]} Wins`);
+      document.querySelector(".board-wrapper").classList.add("win");
+      endGame(board[a]);
       return true;
     }
   }
   if (!board.includes("")) {
-    endGame("Draw");
+    endGame();
     return true;
   }
   return false;
 }
 
 function drawWinLine(a, c) {
-  const pos = i => [
-    (i % 3) * cellSize + 50,
-    Math.floor(i / 3) * cellSize + 50
-  ];
+  const pos = (i) => [(i % 3) * cellSize + 50, Math.floor(i / 3) * cellSize + 50];
 
-  const [x1,y1] = pos(a);
-  const [x2,y2] = pos(c);
+  const [x1, y1] = pos(a);
+  const [x2, y2] = pos(c);
 
   const line = document.createElementNS(NS, "line");
   line.setAttribute("x1", x1);
@@ -166,21 +170,29 @@ function drawWinLine(a, c) {
   boardSvg.appendChild(line);
 }
 
-function endGame(text) {
+function endGame(player = "") {
   gameOver = true;
-  statusEl.textContent = text;
-  saveHistory(text);
+  statusEl.textContent = player ? `${player} Wins!` : "Draw!";
+  saveHistory(player);
 }
 
 function restart() {
   location.reload();
 }
 
-function saveHistory(result) {
+function saveHistory(player = "") {
   const key = mode === "bot" ? BOT_KEY : PVP_KEY;
+
   const data = JSON.parse(localStorage.getItem(key)) || [];
-  data.unshift(`${result} • ${new Date().toLocaleTimeString()}`);
-  localStorage.setItem(key, JSON.stringify(data.slice(0,20)));
+  const text = !player
+    ? "Draw"
+    : mode === "bot"
+    ? player === "X"
+      ? "Player Wins"
+      : "Bot Wins"
+    : `${player} Wins`;
+  data.unshift(`${text} • ${new Date().toLocaleTimeString()}`);
+  localStorage.setItem(key, JSON.stringify(data.slice(0, 20)));
   loadHistory();
 }
 
@@ -188,7 +200,7 @@ function loadHistory() {
   const key = mode === "bot" ? BOT_KEY : PVP_KEY;
   const data = JSON.parse(localStorage.getItem(key)) || [];
   historyList.innerHTML = "";
-  data.forEach(t=>{
+  data.forEach((t) => {
     const li = document.createElement("li");
     li.textContent = t;
     historyList.appendChild(li);
