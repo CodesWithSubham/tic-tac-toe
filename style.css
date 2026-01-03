@@ -25,12 +25,7 @@ body {
 }
 
 body.turn-x {
-  background: radial-gradient(
-    circle at top,
-    #b31d1d 0%,
-    #6d0000 55%,
-    #2b0000 100%
-  );
+  background: radial-gradient(circle at top, #b31d1d 0%, #6d0000 55%, #2b0000 100%);
 }
 
 .turn-x button {
@@ -38,21 +33,14 @@ body.turn-x {
   --btn-neon-soft: rgba(255, 77, 77, 0.45);
 }
 
-
 body.turn-o {
-  background: radial-gradient(
-    circle at top,
-    #1ea1ff 0%,
-    #003b7a 55%,
-    #00162b 100%
-  );
+  background: radial-gradient(circle at top, #1ea1ff 0%, #003b7a 55%, #00162b 100%);
 }
 
 .turn-o button {
   --btn-neon: #4db8ff;
   --btn-neon-soft: rgba(77, 184, 255, 0.45);
 }
-
 
 body.turn-x::before,
 body.turn-o::before {
